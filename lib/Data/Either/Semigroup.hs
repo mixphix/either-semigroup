@@ -67,11 +67,15 @@ LeftS l0 `applyS` LeftS l1 = LeftS (l0 <> l1)
 LeftS l `applyS` _ = LeftS l
 _ `applyS` LeftS l = LeftS l
 
+infixl 4 `applyS`
+
 -- | A version of '(<|>)' that does *not* combine 'LeftS' results.
 altS :: (Monoid l) => EitherS l r -> EitherS l r -> EitherS l r
 RightS r `altS` _ = RightS r
 LeftS _ `altS` RightS r = RightS r
 LeftS l `altS` _ = LeftS l
+
+infixl 3 `altS`
 
 instance (Monoid l) => Monad (EitherS l) where
   (>>=) :: (Monoid l) => EitherS l r0 -> (r0 -> EitherS l r1) -> EitherS l r1
