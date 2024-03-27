@@ -8,6 +8,7 @@ module Data.Either.Semigroup
   , rightsS
   ) where
 
+import Control.Applicative
 import Control.Monad.Fix (MonadFix (mfix))
 import Data.Bifoldable (Bifoldable (bifoldMap))
 import Data.Bifoldable1
@@ -47,6 +48,15 @@ instance (Monoid l) => Applicative (EitherS l) where
   RightS f <*> RightS x = RightS (f x)
   LeftS l <*> _ = LeftS l
   _ <*> LeftS l = LeftS l
+
+instance (Monoid l) => Alternative (EitherS l) where
+  empty :: (Monoid l) => EitherS l r
+  empty = mempty
+
+  (<|>) :: (Monoid l) => EitherS l r -> EitherS l r -> EitherS l r
+  LeftS l0 <|> LeftS l1 = LeftS (l0 <> l1)
+  RightS r <|> _ = RightS r
+  _ <|> RightS r = RightS r
 
 instance (Monoid l) => Monad (EitherS l) where
   (>>=) :: (Monoid l) => EitherS l r0 -> (r0 -> EitherS l r1) -> EitherS l r1
