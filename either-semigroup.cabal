@@ -10,14 +10,14 @@ license-file:    LICENSE
 license:         BSD-2-Clause
 homepage:        https://github.com/mixphix/either-semigroup#readme
 bug-reports:     https://github.com/mixphix/either-semigroup/issues
-extra-doc-files:
-  CHANGELOG.md
-  README.md
-
 synopsis:        Either with a stricter Semigroup instance
 description:
   A version of `Either` whose `Semigroup` instance requires a `Semigroup` in the `Left` argument.
   Unlike most `Validation` packages, this package does not depend on the entire Kmettverse, preferring a small dependency tree.
+
+extra-doc-files:
+  CHANGELOG.md
+  README.md
 
 library
   ghc-options:        -Wall

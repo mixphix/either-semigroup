@@ -1,5 +1,7 @@
 module Data.Either.Semigroup
   ( EitherS (LeftS, RightS)
+  , applyS
+  , altS
   , toEither
   , unLeftS
   , unRightS
@@ -8,6 +10,7 @@ module Data.Either.Semigroup
   , rightsS
   ) where
 
+import Control.Applicative
 import Control.Monad.Fix (MonadFix (mfix))
 import Data.Bifoldable (Bifoldable (bifoldMap))
 import Data.Bifoldable1
@@ -47,6 +50,32 @@ instance (Monoid l) => Applicative (EitherS l) where
   RightS f <*> RightS x = RightS (f x)
   LeftS l <*> _ = LeftS l
   _ <*> LeftS l = LeftS l
+
+instance (Monoid l) => Alternative (EitherS l) where
+  empty :: (Monoid l) => EitherS l r
+  empty = mempty
+
+  (<|>) :: (Monoid l) => EitherS l r -> EitherS l r -> EitherS l r
+  LeftS l0 <|> LeftS l1 = LeftS (l0 <> l1)
+  RightS r <|> _ = RightS r
+  _ <|> RightS r = RightS r
+
+-- | A version of 'Control.Monad.ap'/'(<*>)' that combines 'LeftS' results.
+applyS :: (Monoid l) => EitherS l (r0 -> r1) -> EitherS l r0 -> EitherS l r1
+RightS f `applyS` RightS x = RightS (f x)
+LeftS l0 `applyS` LeftS l1 = LeftS (l0 <> l1)
+LeftS l `applyS` _ = LeftS l
+_ `applyS` LeftS l = LeftS l
+
+infixl 4 `applyS`
+
+-- | A version of '(<|>)' that does *not* combine 'LeftS' results.
+altS :: (Monoid l) => EitherS l r -> EitherS l r -> EitherS l r
+RightS r `altS` _ = RightS r
+LeftS _ `altS` RightS r = RightS r
+LeftS l `altS` _ = LeftS l
+
+infixl 3 `altS`
 
 instance (Monoid l) => Monad (EitherS l) where
   (>>=) :: (Monoid l) => EitherS l r0 -> (r0 -> EitherS l r1) -> EitherS l r1
